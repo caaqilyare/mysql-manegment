@@ -49,7 +49,7 @@ npm install
 # Copy the example env file
 cp .env.example .env
 
-# Add your environment variables
+
 PORT=3000
 DB_HOST=localhost
 DB_USER=root
