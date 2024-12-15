@@ -1,13 +1,17 @@
-# Management System 🚀
+# MySQL Management System 🚀
 
-A modern and efficient management system built with Node.js and TypeScript.
+A powerful and intuitive MySQL database management system built with Node.js and TypeScript. This project provides a modern web interface for managing MySQL databases, tables, and queries with ease. Perfect for developers and database administrators who need a streamlined way to handle MySQL operations.
 
 ## 🌟 Features
 
+- **Database Operations**: Create, modify, and delete databases and tables
+- **Query Interface**: Execute and save custom SQL queries
+- **User Management**: Manage MySQL user permissions and access
+- **Data Import/Export**: Easy data import and export functionality
+- **Monitoring**: Track database performance and query execution times
 - **TypeScript Support**: Built with TypeScript for better type safety and developer experience
-- **Database Integration**: Robust database management system
-- **RESTful API**: Well-structured API endpoints
-- **Frontend Interface**: Modern and responsive user interface
+- **RESTful API**: Well-structured API endpoints for all database operations
+- **Modern UI**: Intuitive and responsive user interface for seamless database management
 
 ## 🛠️ Tech Stack
 
