@@ -26,8 +26,8 @@ A modern and efficient management system built with Node.js and TypeScript.
 
 1. **Clone the repository**
 ```bash
-git clone [your-repository-url]
-cd managment
+git clone https://github.com/caaqilyare/mysql-manegment
+cd mysql-manegment
 ```
 
 2. **Install dependencies**
