@@ -50,6 +50,12 @@ npm install
 cp .env.example .env
 
 # Add your environment variables
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=management_db
+
 ```
 
 ## 🚀 Getting Started
