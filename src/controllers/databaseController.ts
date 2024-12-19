@@ -468,3 +468,41 @@ export const clearTable = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error clearing table: ' + error.message });
   }
 };
+
+export const createTable = async (req: Request, res: Response) => {
+  try {
+    const { database, tableName, columns } = req.body;
+
+    // Construct the CREATE TABLE query
+    const columnDefinitions = columns.map((col: any) => {
+      const { name, type, constraints = [] } = col;
+      
+      // Convert constraints to MySQL format
+      const mysqlConstraints = constraints.map((c: string) => 
+        c === 'AUTOINCREMENT' ? 'AUTO_INCREMENT' : c
+      ).filter((c: string): c is string => Boolean(c));
+      
+      const constraintString = mysqlConstraints.length > 0 
+        ? ' ' + mysqlConstraints.join(' ') 
+        : '';
+      
+      return `\`${name}\` ${type}${constraintString}`;
+    }).join(', ');
+
+    if (!columnDefinitions) {
+      throw new Error('No valid columns provided');
+    }
+
+    // Use backticks for database and table names
+    const createTableQuery = `CREATE TABLE \`${database}\`.\`${tableName}\` (${columnDefinitions}) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
+    console.log('Creating table with query:', createTableQuery); // Debug log
+
+    // Create the table
+    await query(createTableQuery);
+
+    res.json({ message: 'Table created successfully' });
+  } catch (error) {
+    console.error('Error creating table:', error);
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to create table' });
+  }
+};

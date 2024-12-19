@@ -19,6 +19,7 @@ import {
   useTheme,
   CircularProgress,
   alpha,
+  Paper,
 } from '@mui/material';
 import {
   Storage as DatabaseIcon,
@@ -30,6 +31,8 @@ import {
   Download as DownloadIcon,
 } from '@mui/icons-material';
 import TableViewer from './TableViewer';
+import SqlEditor from './SqlEditor';
+import TableManager from './TableManager';
 import { useToast } from '../contexts/ToastContext';
 import { LoadingButton } from '@mui/lab';
 
@@ -55,8 +58,11 @@ export const DatabaseManager = () => {
   const [tableToDelete, setTableToDelete] = useState<string | null>(null);
   const [deletingTable, setDeletingTable] = useState(false);
   const [tableStructure, setTableStructure] = useState<any>(null);
+  const [queryResult, setQueryResult] = useState<any>(null);
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
+  const showToast = useToast();
 
   useEffect(() => {
     fetchDatabases();
@@ -288,6 +294,39 @@ export const DatabaseManager = () => {
       setDeletingTable(false);
       setDeleteTableDialogOpen(false);
       setTableToDelete(null);
+    }
+  };
+
+  const handleCreateTable = async (tableName: string, columns: any[]) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:3000/api/databases/${selectedDb}/tables`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          database: selectedDb,
+          tableName,
+          columns,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create table');
+      }
+
+      await fetchTables(selectedDb);
+      showToast('Table created successfully', 'success');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to create table';
+      showToast(errorMessage, 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -650,140 +689,171 @@ export const DatabaseManager = () => {
               )}
             </Box>
 
-            {/* Tables Grid */}
-            <Box
-              sx={{
-                flex: 1,
-                overflow: 'auto',
-                px: 3,
-                pb: 3,
-                mt: 2,
-                '&::-webkit-scrollbar': {
-                  width: '8px',
-                  height: '8px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  bgcolor: 'rgba(255, 255, 255, 0.05)',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '4px',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.15)',
-                  },
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: 3,
-                  maxWidth: '1400px',
-                  margin: '0 auto',
-                }}
-              >
-                {tables.map((table) => (
-                  <Box
-                    key={table}
-                    onClick={() => setSelectedTable(table)}
-                    sx={{
-                      position: 'relative',
-                      height: '160px',
-                      cursor: 'pointer',
-                      bgcolor: 'background.paper',
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      border: `1px solid ${alpha(theme.palette.primary.main, selectedTable === table ? 0.3 : 0.1)}`,
-                      '&:hover': {
-                        transform: 'translateY(-8px) scale(1.02)',
-                        boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
-                        '& .table-icon': {
-                          transform: 'scale(1.2) rotate(10deg)',
-                        },
-                        '& .table-bg': {
-                          opacity: 0.15,
-                        },
-                        '& .table-content': {
-                          transform: 'translateY(-4px)',
-                        },
-                      },
-                    }}
-                  >
-                    {/* Background Pattern */}
-                    <Box
-                      className="table-bg"
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        opacity: selectedTable === table ? 0.12 : 0.08,
-                        transition: 'opacity 0.3s',
-                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.4)} 0%, ${alpha(
-                          theme.palette.secondary.main,
-                          0.4
-                        )} 100%)`,
-                        backgroundSize: '400% 400%',
-                        animation: 'gradient 15s ease infinite',
-                      }}
+            {/* Main Content Area */}
+            <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
+              {selectedDb && (
+                <>
+                  <Typography variant="h5" gutterBottom>
+                    Database: {selectedDb}
+                  </Typography>
+                  
+                  {/* SQL Editor */}
+                  <Box sx={{ mb: 4 }}>
+                    <SqlEditor
+                      database={selectedDb}
+                      onQueryResult={setQueryResult}
                     />
+                  </Box>
 
-                    {/* Content */}
+                  {/* Query Result Display */}
+                  {queryResult && (
+                    <Box sx={{ mt: 3 }}>
+                      <Typography variant="h6" gutterBottom>
+                        Query Result
+                      </Typography>
+                      <Paper sx={{ p: 2, overflow: 'auto' }}>
+                        <pre style={{ margin: 0 }}>
+                          {JSON.stringify(queryResult, null, 2)}
+                        </pre>
+                      </Paper>
+                    </Box>
+                  )}
+
+                  {/* Tables Section */}
+                  <Box sx={{ mt: 4 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Tables
+                    </Typography>
+                    {/* Existing table content */}
                     <Box
-                      className="table-content"
                       sx={{
-                        position: 'relative',
-                        height: '100%',
-                        p: 3,
                         display: 'flex',
-                        flexDirection: 'column',
-                        transition: 'transform 0.3s',
+                        gap: 1,
+                        mb: 2,
                       }}
                     >
-                      <Box sx={{ flex: 1 }}>
-                        <TableIcon
-                          className="table-icon"
+                      <Button
+                        startIcon={<AddIcon />}
+                        variant="contained"
+                        onClick={() => setTableDialogOpen(true)}
+                        disabled={!selectedDb}
+                      >
+                        New Table
+                      </Button>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: 3,
+                        maxWidth: '1400px',
+                        margin: '0 auto',
+                      }}
+                    >
+                      {tables.map((table) => (
+                        <Box
+                          key={table}
+                          onClick={() => setSelectedTable(table)}
                           sx={{
-                            fontSize: 32,
-                            color: 'primary.main',
-                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            mb: 2,
-                          }}
-                        />
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            color: 'text.primary',
+                            position: 'relative',
+                            height: '160px',
+                            cursor: 'pointer',
+                            bgcolor: 'background.paper',
+                            borderRadius: 4,
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            border: `1px solid ${alpha(theme.palette.primary.main, selectedTable === table ? 0.3 : 0.1)}`,
+                            '&:hover': {
+                              transform: 'translateY(-8px) scale(1.02)',
+                              boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
+                              '& .table-icon': {
+                                transform: 'scale(1.2) rotate(10deg)',
+                              },
+                              '& .table-bg': {
+                                opacity: 0.15,
+                              },
+                              '& .table-content': {
+                                transform: 'translateY(-4px)',
+                              },
+                            },
                           }}
                         >
-                          {table}
-                        </Typography>
-                      </Box>
+                          {/* Background Pattern */}
+                          <Box
+                            className="table-bg"
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              opacity: selectedTable === table ? 0.12 : 0.08,
+                              transition: 'opacity 0.3s',
+                              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.4)} 0%, ${alpha(
+                                theme.palette.secondary.main,
+                                0.4
+                              )} 100%)`,
+                              backgroundSize: '400% 400%',
+                              animation: 'gradient 15s ease infinite',
+                            }}
+                          />
 
-                      {/* Card Footer */}
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          color: 'text.secondary',
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                          Click to view
-                        </Typography>
-                      </Box>
+                          {/* Content */}
+                          <Box
+                            className="table-content"
+                            sx={{
+                              position: 'relative',
+                              height: '100%',
+                              p: 3,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              transition: 'transform 0.3s',
+                            }}
+                          >
+                            <Box sx={{ flex: 1 }}>
+                              <TableIcon
+                                className="table-icon"
+                                sx={{
+                                  fontSize: 32,
+                                  color: 'primary.main',
+                                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  mb: 2,
+                                }}
+                              />
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: 'text.primary',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {table}
+                              </Typography>
+                            </Box>
+
+                            {/* Card Footer */}
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                color: 'text.secondary',
+                              }}
+                            >
+                              <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                                Click to view
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      ))}
                     </Box>
                   </Box>
-                ))}
-              </Box>
+                </>
+              )}
             </Box>
           </Box>
         ) : (
@@ -918,6 +988,13 @@ export const DatabaseManager = () => {
           </LoadingButton>
         </DialogActions>
       </Dialog>
+
+      <TableManager
+        open={tableDialogOpen}
+        onClose={() => setTableDialogOpen(false)}
+        onCreateTable={handleCreateTable}
+        database={selectedDb}
+      />
 
       {/* Add keyframes for gradient animation */}
       <style>

@@ -2,10 +2,23 @@
 
 A powerful and intuitive MySQL database management system built with Node.js and TypeScript. This project provides a modern web interface for managing MySQL databases, tables, and queries with ease. Perfect for developers and database administrators who need a streamlined way to handle MySQL operations.
 
-## 🌟 Features
+## 🚀 Latest Features (v1.1) - Released December 19, 2024
 
-- **Database Operations**: Create, modify, and delete databases and tables
-- **Query Interface**: Execute and save custom SQL queries
+- **Advanced Query Interface**: 
+  - Direct SQL query input for data insertion
+  - Interactive query builder for complex SQL operations
+- **Improved Table Management**:
+  - Intuitive table creation wizard
+  - Best practices templates for common table structures
+  - Advanced column type configuration
+
+## 🌟 Base Features (v1.0.0) - Released December 14, 2024
+
+- **Database Operations**: 
+  - Create and delete databases
+  - Basic table management
+  - Database backup and restore
+- **Basic Query Interface**: Execute simple SQL queries
 - **User Management**: Manage MySQL user permissions and access
 - **Data Import/Export**: Easy data import and export functionality
 - **Monitoring**: Track database performance and query execution times
@@ -19,10 +32,10 @@ A powerful and intuitive MySQL database management system built with Node.js and
   - Node.js
   - TypeScript
   - Express.js
-  - Database (Add your specific database here)
+  - MYSQL
 
 - **Frontend**:
-  - React/Next.js (Add your specific frontend framework)
+  - React/Vite
   - Modern UI components
   - State management
 
@@ -130,6 +143,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - List any inspirations, code snippets, etc.
 - Add credits for any third-party assets or libraries used
+
+## 🆕 What's New in v1.1
+
+- **Enhanced SQL Query Input**: Added direct SQL query input functionality for efficient data insertion
+- **Improved Table Creation**: New table creation wizard with best practice templates and advanced configuration options
+- **Query Builder Updates**: Enhanced support for complex SQL operations
 
 ---
 Made with ❤️ and ☕

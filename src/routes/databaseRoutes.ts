@@ -17,6 +17,7 @@ import {
   importDatabase,
   executeQuery,
   clearTable,
+  createTable,
 } from '../controllers/databaseController';
 
 const router = express.Router();
@@ -40,6 +41,7 @@ router.get('/databases/:database/export', exportDatabase);
 
 // Table management routes
 router.get('/databases/:database/tables', getTables);
+router.post('/databases/:database/tables', createTable);
 router.get('/databases/:database/tables/:table/structure', getTableStructure);
 router.get('/databases/:database/tables/:table/data', getTableData);
 router.put('/databases/:database/tables/:table/records/:id', updateTableData);
