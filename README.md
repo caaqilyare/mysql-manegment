@@ -22,7 +22,7 @@ A powerful and intuitive MySQL database management system built with Node.js and
   - Database (Add your specific database here)
 
 - **Frontend**:
-  - React/Next.js (Add your specific frontend framework)
+  - React/Vite
   - Modern UI components
   - State management
 
